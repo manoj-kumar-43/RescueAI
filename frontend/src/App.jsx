@@ -4,6 +4,8 @@ import Navigation from './components/Navigation';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
 import EmergencyBanner from './components/EmergencyBanner';
+import AuthModal from './components/AuthModal';
+import NotificationToast from './components/NotificationToast';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -16,7 +18,7 @@ import HowItWorks from './pages/HowItWorks';
 import EmergencyContacts from './pages/EmergencyContacts';
 
 function AppContent() {
-  const { activePage, setActivePage } = useContext(AppContext);
+  const { activePage } = useContext(AppContext);
 
   // Render active page view
   const renderPage = () => {
@@ -105,6 +107,12 @@ function AppContent() {
 
       {/* Mobile Bottom Navigation Bar (Hidden on wide screens) */}
       <BottomNav />
+
+      {/* Auth Modal */}
+      <AuthModal />
+
+      {/* Notification Toast */}
+      <NotificationToast />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 
 export default function MedicalHistory() {
-  const { medicalProfile, setMedicalProfile } = useContext(AppContext);
+  const { medicalProfile, updateMedicalProfile } = useContext(AppContext);
   const [isEditing, setIsEditing] = useState(false);
 
   // Local Form state
@@ -15,8 +15,7 @@ export default function MedicalHistory() {
   const [newMedDosage, setNewMedDosage] = useState('');
 
   const handleSave = () => {
-    setMedicalProfile({
-      ...medicalProfile,
+    updateMedicalProfile({
       bloodType,
       weight,
       height
@@ -27,8 +26,7 @@ export default function MedicalHistory() {
   const addAllergy = (e) => {
     e.preventDefault();
     if (!newAllergyName) return;
-    setMedicalProfile({
-      ...medicalProfile,
+    updateMedicalProfile({
       allergies: [...medicalProfile.allergies, { name: newAllergyName, reaction: newAllergyReaction || 'Unknown reaction' }]
     });
     setNewAllergyName('');
@@ -37,8 +35,7 @@ export default function MedicalHistory() {
 
   const removeAllergy = (index) => {
     const updated = medicalProfile.allergies.filter((_, i) => i !== index);
-    setMedicalProfile({
-      ...medicalProfile,
+    updateMedicalProfile({
       allergies: updated
     });
   };
@@ -46,8 +43,7 @@ export default function MedicalHistory() {
   const addMedication = (e) => {
     e.preventDefault();
     if (!newMedName) return;
-    setMedicalProfile({
-      ...medicalProfile,
+    updateMedicalProfile({
       medications: [...medicalProfile.medications, { name: newMedName, dosage: newMedDosage || 'As needed' }]
     });
     setNewMedName('');
@@ -56,8 +52,7 @@ export default function MedicalHistory() {
 
   const removeMedication = (index) => {
     const updated = medicalProfile.medications.filter((_, i) => i !== index);
-    setMedicalProfile({
-      ...medicalProfile,
+    updateMedicalProfile({
       medications: updated
     });
   };

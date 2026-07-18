@@ -4,15 +4,17 @@ import { AppContext } from '../context/AppContext';
 export default function EmergencyContacts() {
   const {
     contactsList,
-    setContactsList,
+    addContact,
+    deleteContact,
+    toggleContactStatus,
     alertRules,
     setAlertRules,
     notifyContacts,
     recentActivity,
-    setRecentActivity
+    isAuthenticated,
+    setShowAuthModal
   } = useContext(AppContext);
 
-  // Local Form state for new contact
   const [showAddForm, setShowAddForm] = useState(false);
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('');
@@ -21,45 +23,25 @@ export default function EmergencyContacts() {
   const handleAddContact = (e) => {
     e.preventDefault();
     if (!name || !phone) return;
-    
-    const newContact = {
-      id: Date.now(),
-      name,
-      relationship: relationship || 'Contact',
-      phone,
-      status: 'Active'
-    };
 
-    setContactsList([...contactsList, newContact]);
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    addContact({ name, relationship: relationship || 'Contact', phone });
     setName('');
     setRelationship('');
     setPhone('');
     setShowAddForm(false);
-
-    // Log Activity
-    const logItem = {
-      id: Date.now(),
-      title: 'Contact Added',
-      description: `${newContact.name} added as ${newContact.relationship}`,
-      time: 'Just now',
-      type: 'profile'
-    };
-    setRecentActivity(prev => [logItem, ...prev]);
   };
 
-  const deleteContact = (id) => {
-    const updated = contactsList.filter(c => c.id !== id);
-    setContactsList(updated);
-  };
-
-  const toggleContactStatus = (id) => {
-    const updated = contactsList.map(c => {
-      if (c.id === id) {
-        return { ...c, status: c.status === 'Active' ? 'Paused' : 'Active' };
-      }
-      return c;
-    });
-    setContactsList(updated);
+  const handleBroadcast = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    notifyContacts();
   };
 
   return (
@@ -88,8 +70,8 @@ export default function EmergencyContacts() {
               Instantly notify all active contacts of your current location and triage status.
             </p>
           </div>
-          <button 
-            onClick={notifyContacts}
+          <button
+            onClick={handleBroadcast}
             className="bg-error text-on-error font-action-xl text-action-xl px-8 py-4 rounded-xl shadow-md hover:bg-error/90 active:scale-95 transition-all flex-shrink-0 w-full md:w-auto h-[56px] flex items-center justify-center font-bold"
           >
             Broadcast Now
@@ -105,7 +87,7 @@ export default function EmergencyContacts() {
               <h3 className="font-headline-md text-headline-md text-on-background font-bold">
                 Trusted Contacts
               </h3>
-              <button 
+              <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="text-primary font-label-bold text-label-bold flex items-center hover:bg-surface-container-low px-4 py-2 rounded-lg transition-colors font-semibold"
               >
@@ -114,7 +96,6 @@ export default function EmergencyContacts() {
               </button>
             </div>
 
-            {/* Add Contact Form (Conditional Display) */}
             {showAddForm && (
               <form onSubmit={handleAddContact} className="bg-surface-container-low border border-outline-variant p-5 rounded-xl mb-6 flex flex-col gap-4 animate-fade-in">
                 <h4 className="font-bold text-on-surface">New Contact Info</h4>
@@ -154,7 +135,7 @@ export default function EmergencyContacts() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {contactsList.map((contact) => (
-                <div 
+                <div
                   key={contact.id}
                   className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-5 hover:border-primary/50 transition-colors shadow-sm relative"
                 >
@@ -174,10 +155,10 @@ export default function EmergencyContacts() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <span className={`font-label-bold text-xs px-2.5 py-1 rounded-full border ${
-                      contact.status === 'Active' 
-                        ? 'bg-tertiary-container/10 text-tertiary border-tertiary/20' 
+                      contact.status === 'Active'
+                        ? 'bg-tertiary-container/10 text-tertiary border-tertiary/20'
                         : 'bg-surface-variant text-on-surface-variant border-outline-variant'
                     }`}>
                       {contact.status}
@@ -190,19 +171,19 @@ export default function EmergencyContacts() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={() => deleteContact(contact.id)}
                       className="flex-1 border border-outline-variant rounded-lg py-2 font-label-bold text-label-bold hover:bg-error-container hover:text-error transition-colors text-on-surface-variant"
                     >
                       Remove
                     </button>
-                    <button 
+                    <button
                       onClick={() => toggleContactStatus(contact.id)}
                       className="flex-1 bg-surface-container-high text-on-surface rounded-lg py-2 font-label-bold text-label-bold hover:bg-surface-variant transition-colors flex items-center justify-center"
                     >
                       <span className="material-symbols-outlined text-sm mr-1">
                         {contact.status === 'Active' ? 'notifications_off' : 'notifications'}
-                      </span> 
+                      </span>
                       {contact.status === 'Active' ? 'Pause' : 'Activate'}
                     </button>
                   </div>
@@ -223,9 +204,8 @@ export default function EmergencyContacts() {
             <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-6">
               Configure when active contacts are automatically notified based on triage level.
             </p>
-            
+
             <div className="space-y-4">
-              {/* Critical Status */}
               <div className="flex items-center justify-between p-3 border border-error/20 rounded-lg bg-error/5">
                 <div>
                   <div className="font-label-bold text-label-bold text-error flex items-center font-bold">
@@ -247,7 +227,6 @@ export default function EmergencyContacts() {
                 </div>
               </div>
 
-              {/* Urgent Status */}
               <div className="flex items-center justify-between p-3 border border-outline-variant/50 rounded-lg">
                 <div>
                   <div className="font-label-bold text-label-bold text-secondary-container flex items-center font-bold">
@@ -268,7 +247,6 @@ export default function EmergencyContacts() {
                 </div>
               </div>
 
-              {/* Moderate Status */}
               <div className="flex items-center justify-between p-3 border border-outline-variant/50 rounded-lg">
                 <div>
                   <div className="font-label-bold text-label-bold text-primary flex items-center font-bold">
@@ -297,7 +275,7 @@ export default function EmergencyContacts() {
               <span className="material-symbols-outlined mr-2">history</span>
               Alert Broadcasts History
             </h3>
-            
+
             <div className="relative pl-4 border-l-2 border-outline-variant/30 space-y-6">
               {recentActivity.filter(a => a.type === 'broadcast' || a.type === 'profile').map((act) => (
                 <div key={act.id} className="relative">
@@ -313,7 +291,7 @@ export default function EmergencyContacts() {
                   </p>
                 </div>
               ))}
-              
+
               <div className="relative">
                 <div className="absolute -left-[21px] top-1.5 w-3 h-3 bg-outline rounded-full border-2 border-surface-container-lowest"></div>
                 <p className="font-label-bold text-label-bold text-on-background font-bold">Setup Completed</p>
