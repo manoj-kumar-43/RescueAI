@@ -1,4 +1,4 @@
-const API_BASE = 'https://rescueai-backend-lu15.onrender.com/api';
+const API_BASE = "/api";
 
 function getToken() {
   return localStorage.getItem('rescueai_token');
