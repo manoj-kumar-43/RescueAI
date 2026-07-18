@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
 
 export default function MedicalHistory() {
   const { medicalProfile, updateMedicalProfile } = useContext(AppContext);
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Local Form state
   const [bloodType, setBloodType] = useState(medicalProfile.bloodType);
@@ -21,6 +22,17 @@ export default function MedicalHistory() {
       height
     });
     setIsEditing(false);
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateMedicalProfile({ profilePhoto: reader.result });
+    };
+    reader.readAsDataURL(file);
   };
 
   const addAllergy = (e) => {
@@ -106,12 +118,39 @@ export default function MedicalHistory() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container rounded-bl-full opacity-20 -z-10"></div>
             
             <div className="flex items-center gap-4 mb-stack-md">
-              <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-surface">
-                <img
-                  className="w-full h-full object-cover"
-                  alt="Sarah Jenkins profile"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCfYNhFqt3IE_sXgaByHG2D4vdTsoXmGXkf5B7lPDIKe-DTvQQdR-O2wGw4wXtJ2UCi5bBtRoflNLxX5hBLYk2d4Y72QPvqnFyZ6DvhYZCKJbgK75nTxWUMlOAmSLJUGnpPbvnk41ZyUWJ5Xok4xtRQp8aHltoISFYhOx8xrPFTGlOfSwnJAKjAxR_42swe_PcEvzU-gmUVk2Vt_MsXUMstT60VdzhmXgQ-e0HZm9vlfQB0zWR_JPN_kyBu54lDe4wj60L5TRSu-C2"
-                />
+              <div className="relative group">
+                <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-surface">
+                  {medicalProfile.profilePhoto ? (
+                    <img
+                      className="w-full h-full object-cover"
+                      alt={`${medicalProfile.name || 'User'} profile`}
+                      src={medicalProfile.profilePhoto}
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-4xl text-on-surface-variant">
+                      person
+                    </span>
+                  )}
+                </div>
+                {isEditing && (
+                  <>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute inset-0 w-16 h-16 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-white text-xl">
+                        photo_camera
+                      </span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </>
+                )}
               </div>
               <div>
                 <h3 className="font-headline-md text-headline-md text-on-surface font-bold">

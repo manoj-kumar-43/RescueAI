@@ -56,6 +56,7 @@ export const AppProvider = ({ children }) => {
     allergies: [],
     conditions: [],
     medications: [],
+    profilePhoto: '',
     events: []
   });
 
@@ -127,6 +128,7 @@ export const AppProvider = ({ children }) => {
           allergies: p.allergies || [],
           conditions: p.conditions || [],
           medications: p.medications || [],
+          profilePhoto: p.profilePhoto || '',
           events: p.events || []
         });
       }
@@ -180,7 +182,7 @@ export const AppProvider = ({ children }) => {
     setIsAuthenticated(false);
     setContactsList([]);
     setMedicalProfile({
-      name: '', dob: '', age: '', bloodType: '', weight: '', height: '',
+      name: '', dob: '', age: '', bloodType: '', weight: '', height: '', profilePhoto: '',
       emergencies: [], allergies: [], conditions: [], medications: [], events: []
     });
     setRecentActivity([]);

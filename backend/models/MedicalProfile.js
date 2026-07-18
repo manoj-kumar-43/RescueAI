@@ -44,6 +44,10 @@ const MedicalProfileSchema = new mongoose.Schema({
     name: String,
     dosage: String
   }],
+  profilePhoto: {
+    type: String,
+    default: ''
+  },
   events: [{
     title: String,
     date: String,
